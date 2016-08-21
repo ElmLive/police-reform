@@ -31,6 +31,7 @@ debuggingModel : Model
 debuggingModel =
     { initialModel
         | zipcode = Just "12345"
+        , departmentType = Just PoliceDepartment
     }
 
 
@@ -38,6 +39,11 @@ type Msg
     = ZipcodeChanged String
     | SubmitZipcode
     | ChooseDepartmentType DepartmentType
+    | PoliceDepartmentNameChanged String
+    | PoliceChiefNameChanged String
+    | PoliceWebsiteChanged String
+    | PoliceTwitterChanged String
+    | SubmitPoliceDepartment
 
 
 update : Msg -> Model -> Model
@@ -54,6 +60,10 @@ update msg model =
 
         ChooseDepartmentType departmentType ->
             { model | departmentType = Just departmentType }
+
+        _ ->
+            -- TODO: handle police department form messages
+            model
 
 
 type alias InputFieldModel msg =
@@ -170,7 +180,32 @@ view model =
                     departmentTypeForm
 
                 Just PoliceDepartment ->
-                    text "TODO: police department form"
+                    inputForm
+                        { disabled = True
+                        , onSubmit = SubmitPoliceDepartment
+                        , fields =
+                            [ { id = "departmentName"
+                              , label = "Name of Police Department"
+                              , invalid = False
+                              , msg = PoliceDepartmentNameChanged
+                              }
+                            , { id = "policeChiefName"
+                              , label = "Name of current Police Chief"
+                              , invalid = False
+                              , msg = PoliceChiefNameChanged
+                              }
+                            , { id = "policeWebsite"
+                              , label = "Police Department Website"
+                              , invalid = False
+                              , msg = PoliceWebsiteChanged
+                              }
+                            , { id = "policeTwitter"
+                              , label = "Police Department Twitter"
+                              , invalid = False
+                              , msg = PoliceTwitterChanged
+                              }
+                            ]
+                        }
 
                 Just SheriffDepartment ->
                     text "TODO: sheriff department form"
@@ -180,8 +215,7 @@ main : Program Never
 main =
     Html.App.beginnerProgram
         { model =
-            debuggingModel
-            -- TODO: use initialModel
+            initialModel
         , update = update
         , view = view
         }
