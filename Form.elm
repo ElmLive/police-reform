@@ -10,19 +10,34 @@ import Zipcode
 type alias Model =
     { zipcode : Maybe String
     , zipcodeEntry : String
+    , departmentType : Maybe DepartmentType
     }
+
+
+type DepartmentType
+    = PoliceDepartment
+    | SheriffDepartment
 
 
 initialModel : Model
 initialModel =
     { zipcode = Nothing
     , zipcodeEntry = ""
+    , departmentType = Nothing
+    }
+
+
+debuggingModel : Model
+debuggingModel =
+    { initialModel
+        | zipcode = Just "12345"
     }
 
 
 type Msg
     = ZipcodeChanged String
     | SubmitZipcode
+    | ChooseDepartmentType DepartmentType
 
 
 update : Msg -> Model -> Model
@@ -36,6 +51,9 @@ update msg model =
                 { model | zipcode = Just model.zipcodeEntry }
             else
                 model
+
+        ChooseDepartmentType departmentType ->
+            { model | departmentType = Just departmentType }
 
 
 zipcodeForm : String -> Html Msg
@@ -78,6 +96,30 @@ zipcodeForm zipcodeEntry =
             ]
 
 
+departmentTypeForm : Html Msg
+departmentTypeForm =
+    Html.div
+        [ class "pure-form"
+        ]
+        [ p []
+            [ text "Are you reporting information about a police department or a sheriff department?" ]
+        , p []
+            [ button
+                [ class "pure-button"
+                , onClick (ChooseDepartmentType PoliceDepartment)
+                ]
+                [ text "Police Department" ]
+            ]
+        , p []
+            [ button
+                [ class "pure-button"
+                , onClick (ChooseDepartmentType SheriffDepartment)
+                ]
+                [ text "Sheriff Department" ]
+            ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
     case model.zipcode of
@@ -85,13 +127,23 @@ view model =
             zipcodeForm model.zipcodeEntry
 
         Just zipcode ->
-            text "TODO: show police department form"
+            case model.departmentType of
+                Nothing ->
+                    departmentTypeForm
+
+                Just PoliceDepartment ->
+                    text "TODO: police department form"
+
+                Just SheriffDepartment ->
+                    text "TODO: sheriff department form"
 
 
 main : Program Never
 main =
     Html.App.beginnerProgram
-        { model = initialModel
+        { model =
+            debuggingModel
+            -- TODO: use initialModel
         , update = update
         , view = view
         }
