@@ -4,8 +4,12 @@ https://www.twitch.tv/avh4
 
  - [x] Entering zip
  - [x] Add CSS for forms
- - Do you have a police department or a sheriff department
+ - [x] Do you have a police department or a sheriff department
  - Entering police department information
    - Name of department
+   - Name of the police chief
+   - Department website
+   - Department twitter
+   - Other notes
  - Entering police chief information
  - Entering public statements
