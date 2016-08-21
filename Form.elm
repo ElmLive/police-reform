@@ -37,7 +37,15 @@ view model =
         [ fieldset []
             [ div [ class "pure-control-group" ]
                 [ label [ for "zipcode" ] [ text "Zipcode" ]
-                , input [ id "zipcode", type' "text" ] []
+                , input
+                    [ id "zipcode"
+                    , type' "text"
+                    , classList
+                        [ ( "input-invalid", not (Zipcode.isValid model.zipcodeEntry) )
+                        ]
+                    , onInput ZipCodeChanged
+                    ]
+                    []
                 ]
             ]
         ]
