@@ -13,3 +13,11 @@ https://www.twitch.tv/avh4
    - Other notes
  - Entering police chief information
  - Entering public statements
+
+
+## Development commands
+
+```
+./watch.sh
+elm-reactor
+```

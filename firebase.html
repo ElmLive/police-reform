@@ -1,0 +1,25 @@
+
+<script src="https://www.gstatic.com/firebasejs/3.4.0/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyCeXFLlhPomgMKvm-EzcclnUcoFe2ALJEw",
+    authDomain: "police-reform.firebaseapp.com",
+    databaseURL: "https://police-reform.firebaseio.com",
+    storageBucket: "",
+    messagingSenderId: "701054110170"
+  };
+  firebase.initializeApp(config);
+
+  var database = firebase.database();
+  // database.ref('users/' + 'TBD').set({
+  //   username: 'name1',
+  //   email: 'email1',
+  //   profile_picture : 'https://placebear.com/200/300'
+  // });
+
+  database.ref('zipcodes/94107/').on('value', function(snapshot) {
+    console.log(snapshot.val());
+  });
+
+</script>
