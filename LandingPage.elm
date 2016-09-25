@@ -1,9 +1,12 @@
 port module Main exposing (..)
 
+import Date exposing (Date)
+import Dict exposing (Dict)
 import Html exposing (Html)
 import Html.App
 import Json.Encode as Json
 import Json.Decode as Decode
+import String
 
 
 type alias Model =
@@ -11,23 +14,76 @@ type alias Model =
 
 
 type alias ZipcodeInfo =
-    { policeChief : PersonInfo }
+    { policeChief : PersonInfo
+    , mayor : PersonInfo
+    }
 
 
 zipcodeInfoDecoder : Decode.Decoder ZipcodeInfo
 zipcodeInfoDecoder =
-    Decode.object1 ZipcodeInfo
+    Decode.object2 ZipcodeInfo
         (Decode.at [ "policeChief" ] personInfoDecoder)
+        (Decode.at [ "mayor" ] personInfoDecoder)
 
 
 type alias PersonInfo =
-    { name : Maybe String }
+    { name : Maybe String
+    , terms : List TermInfo
+    }
 
 
 personInfoDecoder : Decode.Decoder PersonInfo
 personInfoDecoder =
-    Decode.object1 PersonInfo
+    Decode.object2 PersonInfo
         (Decode.at [ "name" ] (Decode.maybe Decode.string))
+        (Decode.oneOf
+            [ Decode.at [ "terms" ] (Decode.dict termInfoDecoder)
+            , Decode.succeed (Dict.empty)
+            ]
+            |> Decode.map Dict.toList
+            |> Decode.map (List.map snd)
+        )
+
+
+type alias TermInfo =
+    { start : Month
+    , end : Maybe Month
+    }
+
+
+termInfoDecoder : Decode.Decoder TermInfo
+termInfoDecoder =
+    Decode.object2 TermInfo
+        (Decode.at [ "start" ] decodeMonth)
+        (Decode.oneOf
+            [ Decode.at [ "end" ] (Decode.maybe decodeMonth)
+            , Decode.succeed Nothing
+            ]
+        )
+
+
+type alias Month =
+    { year : Int
+    , month : Int
+    }
+
+
+decodeMonth : Decode.Decoder Month
+decodeMonth =
+    Decode.customDecoder Decode.string
+        (\dateString ->
+            case String.split "-" dateString of
+                [ yearString, monthString ] ->
+                    case ( String.toInt yearString, String.toInt monthString ) of
+                        ( Ok year, Ok month ) ->
+                            Ok (Month year month)
+
+                        _ ->
+                            Err ("Expected a month, but got " ++ dateString)
+
+                _ ->
+                    Err ("Expected a month, but got " ++ dateString)
+        )
 
 
 initialModel : Model
@@ -42,6 +98,7 @@ type Msg
 decodeZipcodeData : Json.Value -> Maybe ZipcodeInfo
 decodeZipcodeData json =
     Decode.decodeValue zipcodeInfoDecoder json
+        |> Result.formatError (Debug.log "decoding error")
         |> Result.toMaybe
 
 
