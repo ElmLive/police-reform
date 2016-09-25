@@ -18,8 +18,20 @@
   //   profile_picture : 'https://placebear.com/200/300'
   // });
 
-  database.ref('zipcodes/94107/').on('value', function(snapshot) {
-    console.log(snapshot.val());
+
+
+</script>
+
+<body>
+<script src="LandingPage.js"></script>
+<script>
+  var app = Elm.Main.fullscreen();
+
+  app.ports.changeZipcode.subscribe(function(zipcode) {
+    database.ref('zipcodes/' + zipcode + '/').on('value', function(snapshot) {
+      app.ports.zipcodeData.send(snapshot.val());
+    });
   });
 
 </script>
+</body>
