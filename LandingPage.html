@@ -27,8 +27,13 @@
 <script>
   var app = Elm.Main.fullscreen();
 
+  var zipcodeRef = null;
   app.ports.changeZipcode.subscribe(function(zipcode) {
-    database.ref('zipcodes/' + zipcode + '/').on('value', function(snapshot) {
+    if (zipcodeRef) {
+      zipcodeRef.off();
+    }
+    zipcodeRef = database.ref('zipcodes/' + zipcode + '/');
+    zipcodeRef.on('value', function(snapshot) {
       app.ports.zipcodeData.send(snapshot.val());
     });
   });

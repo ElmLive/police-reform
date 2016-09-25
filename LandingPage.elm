@@ -3,10 +3,31 @@ port module Main exposing (..)
 import Html exposing (Html)
 import Html.App
 import Json.Encode as Json
+import Json.Decode as Decode
 
 
 type alias Model =
-    { localInfo : Maybe String }
+    { localInfo : Maybe ZipcodeInfo }
+
+
+type alias ZipcodeInfo =
+    { policeChief : PersonInfo }
+
+
+zipcodeInfoDecoder : Decode.Decoder ZipcodeInfo
+zipcodeInfoDecoder =
+    Decode.object1 ZipcodeInfo
+        (Decode.at [ "policeChief" ] personInfoDecoder)
+
+
+type alias PersonInfo =
+    { name : Maybe String }
+
+
+personInfoDecoder : Decode.Decoder PersonInfo
+personInfoDecoder =
+    Decode.object1 PersonInfo
+        (Decode.at [ "name" ] (Decode.maybe Decode.string))
 
 
 initialModel : Model
@@ -18,11 +39,19 @@ type Msg
     = GotZipcodeData Json.Value
 
 
+decodeZipcodeData : Json.Value -> Maybe ZipcodeInfo
+decodeZipcodeData json =
+    Decode.decodeValue zipcodeInfoDecoder json
+        |> Result.toMaybe
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case Debug.log "update" msg of
         GotZipcodeData json ->
-            ( model, Cmd.none )
+            ( { model | localInfo = decodeZipcodeData json }
+            , Cmd.none
+            )
 
 
 view : Model -> Html msg
